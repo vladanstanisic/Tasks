@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-var TasksAxios = axios.create({
+var Axios = axios.create({
   baseURL: 'http://localhost:8080/api',
   
 });
 
-export default TasksAxios;
+export default Axios;
