@@ -46,6 +46,21 @@ class Tasks extends React.Component {
         });
   }
 
+  changeState(taskId) {
+    Axios.post('/tasks/' + taskId + 'change_state')
+    .then(res => {
+        // handle success
+        console.log(res.data)
+        alert('Task state successfully changed!');
+        window.location.reload()
+    })
+    .catch(error => {
+        // handle error
+        console.log(error);
+        alert('Task state is not changed');
+     });
+}
+
   renderTasks() {
     return this.state.tasks.map ((task) => {
         return (
