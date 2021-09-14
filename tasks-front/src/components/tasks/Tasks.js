@@ -59,7 +59,24 @@ class Tasks extends React.Component {
         console.log(error);
         alert('Task state is not changed');
      });
-}
+  } 
+
+  delete(taskId) {
+    Axios.delete('/tasks/' + taskId)
+    .then(res => {
+        console.log(res);
+        alert("Task is deleted!")
+        window.location.reload()
+    })
+    .catch(error => {
+        console.log(error);
+        alert("Task is not deleted!")
+    })
+  }
+
+  edit(taskId) {
+    this.props.history.push('/tasks/edit/'+ taskId);
+  }
 
   renderTasks() {
     return this.state.tasks.map ((task) => {

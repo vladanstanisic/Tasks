@@ -8,6 +8,7 @@ import  {Container, Navbar, Nav, Button} from "react-bootstrap";
 import Tasks from "./components/tasks/Tasks";
 import Login from "./components/login/Login";
 import { logout } from "./services/auth";
+import EditTask from "./components/tasks/EditTask";
 
 
 
@@ -35,6 +36,7 @@ class App extends React.Component {
               <Switch>
                 <Route exact path="/" component={Home} />
                 <Route exact path="/tasks" component={Tasks} />
+                <Route exact path="/tasks/edit/:id" component={EditTask} />
                 <Route exact path="/login" component={Login}/>
                 <Route component={NotFound} />
               </Switch>
