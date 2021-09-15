@@ -1,5 +1,5 @@
 import React from "react";
-import { Table, Button, ButtonGroup, Form } from "react-bootstrap";
+import { Table, Button, ButtonGroup, Form, Collapse } from "react-bootstrap";
 
 import Axios from "../../apis/TasksAxios";
 
@@ -7,12 +7,22 @@ class Tasks extends React.Component {
   constructor(props){
     super(props);
 
-    this.state = { 
+    let task = {
+      name: "",
+      employee: "",
+      points: "",
+      sprintId: -1,
+    };
+
+    this.state = {
+      task: task,
       tasks: [],
-      sprints:[],
-      search: {taskName:"", sprintId: null},
-      pageNo: 0, 
-      totalPages: 0
+      sprints: [],
+      showSearch: false,
+      search: { taskName: "", sprintId: -1 },
+      pageNo: 0,
+      totalPages: 1,
+      sprintSum:""
     };
   }
 
@@ -37,7 +47,37 @@ class Tasks extends React.Component {
       console.log(error);
       alert('Error occured please try again!');
     });
-}
+  }
+
+  doAdd() {
+    try {
+      Axios.post("/tasks/", this.state.task);
+
+      let task = {
+        name: "",
+        employee: "",
+        points: 0,
+        sprintId: -1,
+      };
+      this.setState({ task: task });
+
+      this.getTasks();
+    } catch (error) {
+      alert("Nije uspelo dodavanje.");
+    }
+  }
+
+  addValueInputChange(event) {
+    let control = event.target;
+
+    let name = control.name;
+    let value = control.value;
+
+    let task = this.state.task;
+    task[name] = value;
+
+    this.setState({ task: task });
+  }
 
   searchValueChange(e) {
     let control = e.target;
@@ -82,6 +122,13 @@ class Tasks extends React.Component {
       console.log(error);
       alert('Error occured please try again!');
     });
+  }
+
+  canCreateTask(){
+    const task = this.state.task
+    return task.name!="" && 
+      (task.points!="" && task.points>=0 && task.points<=20 && task.points%1==0)
+       && task.sprintId != -1
   }
 
   changeState(taskId) {
@@ -143,6 +190,67 @@ class Tasks extends React.Component {
     return (
       <div>
         <h1>Tasks</h1>
+        {/*Deo za ADD*/}
+        {window.localStorage['role']=="ROLE_ADMIN"?
+        <Form>
+          <Form.Group>
+            <Form.Label>Name</Form.Label>
+            <Form.Control
+              onChange={(event) => this.addValueInputChange(event)}
+              name="name"
+              value={this.state.task.name}
+              as="input"
+            ></Form.Control>
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Employee</Form.Label>
+            <Form.Control
+              onChange={(event) => this.addValueInputChange(event)}
+              name="employee"
+              value={this.state.task.employee}
+              as="input"
+            ></Form.Control>
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Points</Form.Label>
+            <Form.Control
+              onChange={(event) => this.addValueInputChange(event)}
+              name="points"
+              value={this.state.task.points}
+              as="input"
+              type="number"
+              min = "0"
+              step = "1"
+            ></Form.Control>
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Sprint</Form.Label>
+            <Form.Control
+              onChange={(event) => this.addValueInputChange(event)}
+              name="sprintId"
+              value={this.state.task.sprintId}
+              as="select"
+            >
+              <option value={-1}></option>
+              {this.state.sprints.map((sprint) => {
+                return (
+                  <option value={sprint.id} key={sprint.id}>
+                    {sprint.name}
+                  </option>
+                );
+              })}
+            </Form.Control>
+          </Form.Group>
+          <Button disabled = {!this.canCreateTask()} variant="primary" onClick={() => this.doAdd()}>
+            Add
+          </Button>
+        </Form>:null}
+
+        {/*Deo za pretragu Task-a*/}
+        <Form.Group style={{marginTop:35}}>
+          <Form.Check type="checkbox" label="Show search form" onClick={(event) => this.setState({showSearch: event.target.checked})}/>
+        </Form.Group>
+        <Collapse in={this.state.showSearch}>
         <Form>
           <Form.Label htmlFor="tName">Task name</Form.Label><br/>
           <Form.Control id="tName" name="name" type="text" onChange={(e) => this.searchValueChange(e)}/><br/>
@@ -158,10 +266,10 @@ class Tasks extends React.Component {
                 )
               })
             }
-          </Form.Control><br/>
-                    
+          </Form.Control><br/>         
           <Button style={{ marginTop: "1px" }} className="btn btn-primary" onClick={()=>{this.search();}}>Search</Button>
         </Form>
+        </Collapse>
   
 
         {/*Deo za prikaz Task-a*/}
