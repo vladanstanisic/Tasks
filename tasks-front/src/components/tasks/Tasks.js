@@ -30,9 +30,9 @@ class Tasks extends React.Component {
     this.getData();
   }
 
-  getData() {
-    this.getTasks(0);
-    this.getSprints();
+  async getData() {
+    await this.getTasks(0);
+    await this.getSprints();
   }
 
   getSprints() {
@@ -49,9 +49,9 @@ class Tasks extends React.Component {
     });
   }
 
-  doAdd() {
+  async doAdd() {
     try {
-      Axios.post("/tasks/", this.state.task);
+      await Axios.post("/tasks/", this.state.task);
 
       let task = {
         name: "",
@@ -79,22 +79,19 @@ class Tasks extends React.Component {
     this.setState({ task: task });
   }
 
-  searchValueChange(e) {
-    let control = e.target;
+  searchValueInputChange(event) {
+    let control = event.target;
 
-    let name = control.name
-    let value = control.value
+    let name = control.name;
+    let value = control.value;
 
-    let search = this.state.search
+    let search = this.state.search;
+    search[name] = value;
 
-    search[name] = value
-
-    this.setState({search:search})
-    console.log(this.state.search)
-
+    this.setState({ search: search });
   }
 
-  getTasks(pageNo) {
+  async getTasks(pageNo) {
     let config = {
       params: {
         pageNo: pageNo
@@ -132,7 +129,7 @@ class Tasks extends React.Component {
   }
 
   changeState(taskId) {
-    Axios.post('/tasks/' + taskId + 'change_state')
+    Axios.post(`/tasks/${taskId}/change_state`)
     .then(res => {
         // handle success
         console.log(res.data)
@@ -163,7 +160,7 @@ class Tasks extends React.Component {
     this.props.history.push('/tasks/edit/'+ taskId);
   }
 
-  search() {
+  doSearch() {
     this.getTasks();
   }
 
@@ -178,8 +175,8 @@ class Tasks extends React.Component {
           <td>{task.sprintName}</td>
           <td>
             <button disabled={task.stateId === 3} className="btn btn-primary" onClick={() => this.changeState(task.id)}>Change state</button>
-            <button className="btn btn-success" onClick={() => this.edit(task.id)} style={{ marginLeft: 10 }}>Edit</button>
-            <button className="btn btn-danger" onClick={() => this.delete(task.id)} style={{ marginLeft: 10 }}>Delete</button>
+            {window.localStorage['role']=="ROLE_ADMIN"?[<button className="btn btn-success" onClick={() => this.edit(task.id)} style={{ marginLeft: 10 }}>Edit</button>,
+            <button className="btn btn-danger" onClick={() => this.delete(task.id)} style={{ marginLeft: 10 }}>Delete</button>]:null}
           </td>
         </tr>
       )
@@ -251,23 +248,35 @@ class Tasks extends React.Component {
           <Form.Check type="checkbox" label="Show search form" onClick={(event) => this.setState({showSearch: event.target.checked})}/>
         </Form.Group>
         <Collapse in={this.state.showSearch}>
-        <Form>
-          <Form.Label htmlFor="tName">Task name</Form.Label><br/>
-          <Form.Control id="tName" name="name" type="text" onChange={(e) => this.searchValueChange(e)}/><br/>
-          <Form.Label htmlFor="tSprintId">Sprint</Form.Label><br/>
-          <Form.Control as="select" id="tSprintId" name="sprintId" onChange={(e) => this.searchValueChange(e)}>
-            <option></option>
-            {
-              this.state.sprints.map((sprint) => {
+        <Form style={{marginTop:10}}>
+          <Form.Group>
+            <Form.Label>Task name</Form.Label>
+            <Form.Control
+              value={this.state.search.taskName}
+              name="taskName"
+              as="input"
+              onChange={(e) => this.searchValueInputChange(e)}
+            ></Form.Control>
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Sprint</Form.Label>
+            <Form.Control
+              onChange={(event) => this.searchValueInputChange(event)}
+              name="sprintId"
+              value={this.state.search.sprintId}
+              as="select"
+            >
+              <option value={-1}></option>
+              {this.state.sprints.map((sprint) => {
                 return (
-                  <option key={sprint.id} value={sprint.id}>
-                  {sprint.name}
+                  <option value={sprint.id} key={sprint.id}>
+                    {sprint.name}
                   </option>
-                )
-              })
-            }
-          </Form.Control><br/>         
-          <Button style={{ marginTop: "1px" }} className="btn btn-primary" onClick={()=>{this.search();}}>Search</Button>
+                );
+              })}
+            </Form.Control>
+          </Form.Group>
+          <Button onClick={() => this.doSearch()}>Search</Button>
         </Form>
         </Collapse>
   

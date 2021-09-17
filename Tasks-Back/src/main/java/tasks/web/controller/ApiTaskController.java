@@ -67,7 +67,7 @@ public class ApiTaskController {
 		return new ResponseEntity<>(toDTO.convert(task.get()), HttpStatus.OK);
 	}
 
-	@PreAuthorize("hasRole('ADMIN')")
+	//@PreAuthorize("hasRole('ADMIN')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	ResponseEntity<TaskDto> delete(@PathVariable Long id) {
 		Task deleted = taskService.delete(id);
@@ -87,7 +87,7 @@ public class ApiTaskController {
 		return new ResponseEntity<>(toDTO.convert(saved), HttpStatus.CREATED);
 	}
 
-	@PreAuthorize("hasRole('ADMIN')")
+	//@PreAuthorize("hasRole('ADMIN')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}", consumes = "application/json")
 	public ResponseEntity<TaskDto> edit(@Validated @RequestBody TaskDto taskDTO, @PathVariable Long id) {
 
@@ -100,7 +100,7 @@ public class ApiTaskController {
 		return new ResponseEntity<>(toDTO.convert(persisted), HttpStatus.OK);
 	}
 
-    @PreAuthorize("hasAnyRole('KORISNIK', 'ADMIN')")
+    //@PreAuthorize("hasAnyRole('KORISNIK', 'ADMIN')")
 	@RequestMapping(value = "/{id}/change_state", method = RequestMethod.POST)
 	public ResponseEntity<TaskDto> changeState(@PathVariable Long id) {
 		

@@ -26,7 +26,7 @@ public class ApiStateController {
 	@Autowired
 	private StateToStateDto toDto;
 	
-	@PreAuthorize("hasRole('ADMIN')")
+	//@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping
 	public ResponseEntity<List<StateDto>> getAll(
 			@RequestParam(required = false) String name){

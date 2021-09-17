@@ -1,5 +1,7 @@
 import Axios from "../apis/TasksAxios"
 
+import jwt_decode from "jwt-decode"
+
 export const login = async function(username, password){
     const data = {
         username: username,
@@ -7,6 +9,8 @@ export const login = async function(username, password){
     }
     try{
         const ret = await Axios.post('users/auth', data);
+        const decoded = jwt_decode(ret.data);
+        window.localStorage.setItem('role', decoded.role.authority);
         window.localStorage.setItem('jwt', ret.data);
     }catch(error){
         console.log(error);
